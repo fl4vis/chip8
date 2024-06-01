@@ -1,6 +1,13 @@
-INCLUDES= -I./include
+INCLUDES= -I ./include
 FLAGS= -g
-all:
-	gcc ${FLAGS} ${INCLUDES} ./src/main.c -o ./bin/main `sdl2-config --cflags --libs`
+OBJECTS=./build/chip8memory.o
+
+all: ${OBJECTS}
+	gcc ${FLAGS} ${INCLUDES} ./src/main.c ${OBJECTS} `sdl2-config --cflags --libs` -o ./bin/main
+
+${OBJECTS}:
+./build/chip8memory.o:src/chip8memory.c
+	gcc ${FLAGS} ${INCLUDES} ./src/chip8memory.c -c -o ./build/chip8memory.o
+
 clean:
 	rm ./bin/*
