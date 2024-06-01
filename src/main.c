@@ -22,6 +22,23 @@ int main() {
     struct chip8 chip8;
     chip8_init(&chip8);
 
+    chip8_screen_set(&chip8.screen, 0, 0);
+    chip8_screen_set(&chip8.screen, 1, 1);
+    chip8_screen_set(&chip8.screen, 2, 2);
+    chip8_screen_set(&chip8.screen, 3, 3);
+    chip8_screen_set(&chip8.screen, 4, 4);
+    chip8_screen_set(&chip8.screen, 5, 5);
+    chip8_screen_set(&chip8.screen, 6, 6);
+    chip8_screen_set(&chip8.screen, 7, 7);
+
+    chip8_screen_set(&chip8.screen, 8, 6);
+    chip8_screen_set(&chip8.screen, 9, 5);
+    chip8_screen_set(&chip8.screen, 10, 4);
+    chip8_screen_set(&chip8.screen, 11, 3);
+    chip8_screen_set(&chip8.screen, 12, 2);
+    chip8_screen_set(&chip8.screen, 13, 1);
+    chip8_screen_set(&chip8.screen, 14, 0);
+
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(
             EMULATOR_WINDOW_TITLE,
@@ -71,14 +88,25 @@ int main() {
                 }
             }
         }
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
-
-        // draw white rectangle
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-        SDL_Rect r = {0, 0, 40, 40};
 
-        SDL_RenderFillRect(renderer, &r);
+        for (int x = 0; x < CHIP8_WIDTH; x++) {
+           for(int y = 0; y < CHIP8_HEIGHT; y++) {
+               if(chip8_screen_is_set(&chip8.screen, x, y)) {
+                   SDL_Rect r = {
+                       x * CHIP8_WINDOW_MULTIPLIER,
+                       y * CHIP8_WINDOW_MULTIPLIER,
+                       CHIP8_WINDOW_MULTIPLIER,
+                       CHIP8_WINDOW_MULTIPLIER,
+                   };
+
+                   SDL_RenderFillRect(renderer, &r);
+               }
+           }
+        }
         SDL_RenderPresent(renderer);
     }
 
