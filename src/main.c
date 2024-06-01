@@ -2,6 +2,8 @@
 #include "chip8.h"
 #include "chip8keyboard.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpointer-sign"
 /**
 * The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad with the following layout:
 *    1	 2	 3	 C
@@ -22,23 +24,9 @@ int main() {
     struct chip8 chip8;
     chip8_init(&chip8);
 
-    chip8_screen_set(&chip8.screen, 0, 0);
-    chip8_screen_set(&chip8.screen, 1, 1);
-    chip8_screen_set(&chip8.screen, 2, 2);
-    chip8_screen_set(&chip8.screen, 3, 3);
-    chip8_screen_set(&chip8.screen, 4, 4);
-    chip8_screen_set(&chip8.screen, 5, 5);
-    chip8_screen_set(&chip8.screen, 6, 6);
-    chip8_screen_set(&chip8.screen, 7, 7);
-
-    chip8_screen_set(&chip8.screen, 8, 6);
-    chip8_screen_set(&chip8.screen, 9, 5);
-    chip8_screen_set(&chip8.screen, 10, 4);
-    chip8_screen_set(&chip8.screen, 11, 3);
-    chip8_screen_set(&chip8.screen, 12, 2);
-    chip8_screen_set(&chip8.screen, 13, 1);
-    chip8_screen_set(&chip8.screen, 14, 0);
-
+    chip8_screen_draw_sprite(&chip8.screen, 0, 0, &chip8.memory.memory[0x05], 5);
+    chip8_screen_draw_sprite(&chip8.screen, 5, 0, &chip8.memory.memory[0x00], 5);
+    chip8_screen_draw_sprite(&chip8.screen, 62, 10, &chip8.memory.memory[0x00], 5);
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(
             EMULATOR_WINDOW_TITLE,
@@ -114,3 +102,4 @@ int main() {
     SDL_DestroyWindow(window);
     return 0;
 }
+#pragma clang diagnostic pop
