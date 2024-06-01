@@ -24,7 +24,7 @@ const char keyboard_map[CHIP8_TOTAL_KEYS] = {
 int main() {
     struct chip8 chip8;
     chip8_init(&chip8);
-    chip8.registers.delay_timer = 255;
+    chip8.registers.sound_timer = 3;
 
     chip8_screen_draw_sprite(&chip8.screen, 0, 0, &chip8.memory.memory[0x05], 5);
     chip8_screen_draw_sprite(&chip8.screen, 5, 0, &chip8.memory.memory[0x00], 5);
@@ -103,6 +103,17 @@ int main() {
             usleep(100 * 1000);
             chip8.registers.delay_timer -=1;
             printf("Delay!!!\n");
+        }
+
+        if(chip8.registers.sound_timer > 0) {
+            unsigned char duration = chip8.registers.sound_timer;
+            char command[100];
+
+            sprintf(command, "play -nq -t alsa synth %d sine 440", duration);
+
+            // Execute the command
+            system(command);
+            chip8.registers.sound_timer = 0;
         }
     }
 
