@@ -3,8 +3,6 @@
 #include "chip8.h"
 #include "chip8keyboard.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpointer-sign"
 /**
 * The computers which originally used the Chip-8 Language had a 16-key hexadecimal keypad with the following layout:
 *    1	 2	 3	 C
@@ -21,14 +19,40 @@ const char keyboard_map[CHIP8_TOTAL_KEYS] = {
         SDLK_c, SDLK_d, SDLK_e, SDLK_f
 };
 
-int main() {
+int main(int argc, char **argv) {
+    if(argc < 2) {
+       printf("You must provide a file to load\n");
+       return -1;
+    }
+
+    const char* filename = argv[1];
+    printf("the filename to load is: %s\n", filename);
+
+    // read file as binary data
+    FILE *f = fopen(filename, "rb");
+    if(!f) {
+        printf("Failed to open the file\n");
+        return -1;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char buf[size];
+    int res = fread(buf, size, 1, f);
+
+    if(res != 1) {
+        printf("Failed to read from file\n");
+        return -1;
+    }
+
+    printf("%s\n", buf);
+
     struct chip8 chip8;
     chip8_init(&chip8);
-    chip8.registers.sound_timer = 3;
+    chip8_load(&chip8, buf, size);
 
-    chip8_screen_draw_sprite(&chip8.screen, 0, 0, &chip8.memory.memory[0x05], 5);
-    chip8_screen_draw_sprite(&chip8.screen, 5, 0, &chip8.memory.memory[0x00], 5);
-    chip8_screen_draw_sprite(&chip8.screen, 62, 10, &chip8.memory.memory[0x00], 5);
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(
             EMULATOR_WINDOW_TITLE,
@@ -115,10 +139,14 @@ int main() {
             system(command);
             chip8.registers.sound_timer = 0;
         }
+
+        unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
+        chip8_exec(&chip8, opcode);
+        chip8.registers.PC += 2;
+        printf("%x ", opcode);
     }
 
     out:
     SDL_DestroyWindow(window);
     return 0;
 }
-#pragma clang diagnostic pop
