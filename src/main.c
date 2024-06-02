@@ -47,11 +47,11 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    printf("%s\n", buf);
 
     struct chip8 chip8;
     chip8_init(&chip8);
     chip8_load(&chip8, buf, size);
+    chip8_keyboard_set_map(&chip8.keyboard, keyboard_map);
 
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(
@@ -77,10 +77,10 @@ int main(int argc, char **argv) {
 
                 case SDL_KEYDOWN: {
                     char key = event.key.keysym.sym;
-                    int vkey = chip8_keyboard_map(keyboard_map, key);
+                    int vkey = chip8_keyboard_map(&chip8.keyboard, key);
 
-                    printf("key down %x\n", vkey);
-                    fflush(stdout); // Flush the output buffer
+//                    printf("key down %x\n", vkey);
+//                    fflush(stdout); // Flush the output buffer
 
                     if(vkey != -1) {
                         chip8_keyboard_down(&chip8.keyboard, vkey);
@@ -90,10 +90,10 @@ int main(int argc, char **argv) {
 
                 case SDL_KEYUP: {
                     char key = event.key.keysym.sym;
-                    int vkey = chip8_keyboard_map(keyboard_map, key);
+                    int vkey = chip8_keyboard_map(&chip8.keyboard, key);
 
-                    printf("key up %x\n", vkey);
-                    fflush(stdout); // Flush the output buffer
+//                    printf("key up %x\n", vkey);
+//                    fflush(stdout); // Flush the output buffer
 
                     if(vkey != -1) {
                         chip8_keyboard_up(&chip8.keyboard, vkey);
@@ -124,16 +124,16 @@ int main(int argc, char **argv) {
         SDL_RenderPresent(renderer);
 
         if(chip8.registers.delay_timer > 0) {
-            usleep(100 * 1000);
+            usleep(10 * 200);
             chip8.registers.delay_timer -=1;
-            printf("Delay!!!\n");
+//            printf("Delay!!!\n");
         }
 
         if(chip8.registers.sound_timer > 0) {
             unsigned char duration = chip8.registers.sound_timer;
             char command[100];
 
-            sprintf(command, "play -nq -t alsa synth %d sine 440", duration);
+            sprintf(command, "play -nq -t alsa synth 0.0%d sine 880", duration);
 
             // Execute the command
             system(command);
@@ -141,9 +141,9 @@ int main(int argc, char **argv) {
         }
 
         unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
-        chip8_exec(&chip8, opcode);
         chip8.registers.PC += 2;
-        printf("%x ", opcode);
+        chip8_exec(&chip8, opcode);
+//        printf("%x ", opcode);
     }
 
     out:
